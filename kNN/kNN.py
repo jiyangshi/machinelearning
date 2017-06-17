@@ -15,9 +15,14 @@ k-近邻算法的一般流程：
 
 import numpy
 import operator
+import os
 
 
 def createDataSet():
+
+    """
+    Create data set group, labels
+    """
 
     #Define group and labels
     group = numpy.array( [[1.0, 1.1], [1.0, 1.0], [0, 0], [0, 0.1]] )
@@ -27,9 +32,19 @@ def createDataSet():
 
 def classify0( inX, dataSet, labels, k ):
 
+    """
+    Input:
+        inX: testSet that used to be given a label
+        dataSet: data that already have labels
+        labels: type
+        k: the k least distances
+
+    Output: the label of inX
+    """
     
     #Compute the distances of inX and dataSet
-    dataSetSize = len( dataSet )
+    #dataSetSize = len( dataSet )
+    dataSetSize = dataSet.shape[0]
     diffMat = numpy.tile( inX, (dataSetSize, 1) ) - dataSet
     sqdiffMat = diffMat**2
     sqDistances = sqdiffMat.sum( axis = 1 )
@@ -50,8 +65,71 @@ def classify0( inX, dataSet, labels, k ):
 
 
 
-if __name__ == '__main__':
+def file2matrix( filename ):
 
-    group, labels = createDataSet()
+    """
+    filename: filename.txt
+    """
 
-    print classify0( [0, 0], group, labels, 3 )
+    returnVect = numpy.zeros( (1, 1024) )
+
+    #open filename.txt
+    f = open( filename )
+
+    #Since the data in filename have the structure 32 * 32
+    for i in range(32):
+        lineStr = f.readline()
+        for j in range(32):
+            returnVect[0, 32*i+j] = int( lineStr[j] )
+
+    return returnVect
+
+def handwritingClassTest():
+
+    """
+    Train the data from trainingDigits and test the data from testDigits
+    """
+    
+    hwLabels = []
+    #trainingFileList: name of txt files in trainingDigits files
+    trainingFileList = os.listdir( 'trainingDigits' )
+    m = len( trainingFileList )
+
+    #Store the training data which is equal to dataSet
+    trainingMat = numpy.zeros( (m, 1024) )
+
+    for i in range( m ):
+
+        #fileNameStr is to obtain the name of txt files
+        #classNumStr is to obtain the real number of the txt files' img
+        #for example: the txt files' name is 1_2.txt, then
+        #fileNameStr.split('.') = ['1_2', 'txt'], fileStr = '1_2'
+        #fileStr.split('_') = ['1', '2'], classNumStr = 1
+        fileNameStr = trainingFileList[i]
+        fileStr = fileNameStr.split('.')[0]
+        classNumStr = int( fileStr.split('_')[0] )
+
+        #labels
+        hwLabels.append( classNumStr )
+        trainingMat[i, :] = file2matrix( 'trainingDigits/%s' % fileNameStr )
+
+    testFileList = os.listdir( 'testDigits' )
+
+    errorCount = 0.0
+    mTest = len( testFileList )
+    for i in range( mTest ):
+        #In the same way as trainingDigits
+        fileNameStr = testFileList[i]
+        fileStr = fileNameStr.split('.')[0]
+        classNumStr = int( fileStr.split('_')[0] )
+        vectorUnderTest = file2matrix( 'testDigits/%s', % fileNameStr )
+
+        #classify testDigits files by function classify0
+        classifierResult = classify0( vectorUnderTest, trainingMat, hwLabels, 3 )
+
+
+        print "the classifier came back with: %d, the real answer is: %d" % (classifierResult, classNumStr)
+        if ( classifierResult != classNumStr ): errorCount += 1.0
+
+    print "\nthe total number of errors is: %d" % errorCount
+    print "\nthe total error rate is: %f" %( errorCount / float( mTest ) )
