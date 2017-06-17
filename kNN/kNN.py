@@ -27,6 +27,7 @@ def createDataSet():
 
 def classify0( inX, dataSet, labels, k ):
 
+    
     #Compute the distances of inX and dataSet
     dataSetSize = len( dataSet )
     diffMat = numpy.tile( inX, (dataSetSize, 1) ) - dataSet
