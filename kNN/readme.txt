@@ -3,3 +3,4 @@ kNN.py into sys.path
 
 >>> import kNN
 >>> kNN.handwritingClassTest()
+>>> 
