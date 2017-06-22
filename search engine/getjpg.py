@@ -24,8 +24,9 @@ def getHtml( url ):
 
 
 def getImg( html ):
+    #正则表达式用来筛选html网页代码
     reg = r'src="(.+?\.jpg)" pic_ext'
-    image = re.compile( reg )
+    image = re.compile( reg )  #编译正则表达式，提高筛选速度
     imglist = re.findall( image, html )
 
     return imglist
@@ -33,4 +34,4 @@ def getImg( html ):
 
 if __name__ == '__main__':
     html = getHtml( "http://tieba.baidu.com/p/2460150866" )
-    print getImg( html )
+    print( getImg( html ) )
